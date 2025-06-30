@@ -22,7 +22,8 @@ const characterFileMap = {
   'كليوباترا': 'cleopatra',
   'الإسكندر الأكبر': 'alexander',
   'ألبرت أينشتاين': 'einstein',
-  'أحمد زويل': 'ahmed-zewail'
+  'أحمد زويل': 'ahmed-zewail',
+  'محمد متولي الشعراوي': 'shaarawy'
 };
 
 // Function to load prompt from file
@@ -80,6 +81,11 @@ const generateMockResponse = (character, message) => {
       'أهلاً بك في مختبر العلم! أنا أحمد زويل، عالم الكيمياء المصري الحائز على نوبل. من أبحاثي في الكيمياء، اكتشفت أن الزمن يمكن قياسه بالفيمتو ثانية.',
       'العلم لا يعرف الحدود الجغرافية، والمعرفة ملك للإنسانية جمعاء. التعليم والبحث العلمي هما أساس تقدم الأمم ونهضتها.',
       'الحلم والعمل الجاد يحققان المستحيل، كما فعلت في نوبل. مصر قادرة على إنتاج علماء عظماء إذا استثمرنا في التعليم.'
+    ],
+    'محمد متولي الشعراوي': [
+      'بسم الله الرحمن الرحيم، السلام عليكم ورحمة الله وبركاته يا أبنائي... كما قلت دائماً: "لا تقلق من تدابير البشر فأقصى ما يستطيعون فعله هو تنفيذ إرادة الله." وتأمل: {ومن يتق الله يجعل له مخرجًا}. اللهم ارزقنا الطمأنينة والرضا.',
+      'يا بني، إذا أردت أن ترى عجبًا، فتدبر آيات الله... {أفلا يتدبرون القرآن}. القرآن هاد للبشر، ما من شيء احتاجه البشر إلا بيّنه الله فيه نصًا أو إشارة. اللهم اجعل القرآن ربيع قلوبنا.',
+      'لا يقلق من كان له أب، فكيف بمن كان له رب! {ومن يتوكل على الله فهو حسبه}. الدين الإسلامي دين يسر وليس عسر، والله يريد بنا اليسر. اللهم عليك توكلنا وبك استعنا.'
     ]
   };
 
@@ -105,7 +111,9 @@ app.post('/api/message', async (req, res) => {
     }
 
     // Check if Gemini API key is available and valid
-    if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'your_gemini_api_key_here') {
+    const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyBEctmzAsMfKjVFjCUVD0mjdW5Phy2Q9Dk';
+
+    if (!GEMINI_API_KEY || GEMINI_API_KEY === 'your_gemini_api_key_here') {
       console.log('Using mock response - Gemini API key not configured');
       return res.json({
         reply: generateMockResponse(character, message),
@@ -114,6 +122,8 @@ app.post('/api/message', async (req, res) => {
         source: 'mock'
       });
     }
+
+    console.log('Using Gemini AI with API key:', GEMINI_API_KEY.substring(0, 10) + '...');
 
     // Load character prompt
     const systemPrompt = loadPrompt(character);
@@ -139,7 +149,7 @@ app.post('/api/message', async (req, res) => {
 
     // Send request to Gemini API
     const response = await axios.post(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`,
       geminiRequest,
       {
         headers: {
